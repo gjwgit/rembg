@@ -32,7 +32,7 @@ def main():
     mlcat("Removing Example 1", "Basic background removal using basic example")
     mlask(end="\n", prompt="Press Enter to perform removal on" + input_file)
 
-    f = np.fromfile(get_package_dir() + '\\examples\\' + input_file)
+    f = np.fromfile(get_package_dir() + '\\rembg\\examples\\' + input_file)
     result = remove(f)
     img = Image.open(io.BytesIO(result)).convert("RGBA")
     img.save(os.getcwd() + '\\' + output_file)
@@ -45,7 +45,7 @@ def main():
     mlcat("Removing Example 2", "Alpha matting background removal using basic example")
     mlask(end="\n", prompt="Press Enter to perform alpha matting removal on" + input_file)
 
-    f = np.fromfile(get_package_dir() + '\\examples\\' + input_file)
+    f = np.fromfile(get_package_dir() + '\\rembg\\examples\\' + input_file)
     result = remove(f, alpha_matting=True)
     img = Image.open(io.BytesIO(result)).convert("RGBA")
     img.save(os.getcwd() + '\\alpha-' + output_file)

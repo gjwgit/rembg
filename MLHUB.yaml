@@ -5,7 +5,7 @@ meta:
   version      : 0.0.1
   languages    : py
   license      : mit
-  author       : Graham.Williams@microsoft.com, Jingjing.Shi@anu.edu.au
+  author       : u6440034@anu.edu.au
   url          : https://github.com/StafferOliver/rembg
 dependencies:
   pip3:
@@ -27,5 +27,5 @@ dependencies:
     - mlhub/keying.py
 
 commands:
-  demo       : rembg
-  keying     : Background removal
+  demo       : Run rembg demo with random example from provided pictures
+  keying     : Background removal on custom images

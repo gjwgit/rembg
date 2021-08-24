@@ -23,6 +23,23 @@ def main():
     ap = argparse.ArgumentParser()
 
     ap.add_argument(
+        "-o",
+        "--output",
+        nargs="?",
+        default="-",
+        type=argparse.FileType("wb"),
+        help="Path to the output png image.",
+    )
+
+    ap.add_argument(
+        "input",
+        nargs="?",
+        default="-",
+        type=argparse.FileType("rb"),
+        help="Path to the input image.",
+    )
+
+    ap.add_argument(
         "-m",
         "--model",
         default="u2net",
@@ -80,22 +97,6 @@ def main():
         help="An input folder and an output folder.",
     )
 
-    ap.add_argument(
-        "-o",
-        "--output",
-        nargs="?",
-        default="-",
-        type=argparse.FileType("wb"),
-        help="Path to the output png image.",
-    )
-
-    ap.add_argument(
-        "input",
-        nargs="?",
-        default="-",
-        type=argparse.FileType("rb"),
-        help="Path to the input image.",
-    )
 
     args = ap.parse_args()
 
