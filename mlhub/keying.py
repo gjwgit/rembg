@@ -1,12 +1,14 @@
 import argparse
+import numpy as np
+import io
 import glob
 import os
 from distutils.util import strtobool
-
 import filetype
 from tqdm import tqdm
-
-from ..bg import remove
+from src.rembg.bg import remove
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 def main():
@@ -157,3 +159,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
