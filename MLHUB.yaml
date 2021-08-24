@@ -1,0 +1,31 @@
+meta:
+  name         : rembg
+  title        : rembg
+  keywords     : rembg, background removal, image processing
+  version      : 0.0.1
+  languages    : py
+  license      : mit
+  author       : Graham.Williams@microsoft.com, Jingjing.Shi@anu.edu.au
+  url          : https://github.com/StafferOliver/rembg
+dependencies:
+  pip3:
+    - numpy
+    - pillow
+    - requests
+    - scikit-image
+    - torch
+    - torchvision
+    - tqdm
+    - scipy
+    - pymatting
+    - filetype
+    - hsh
+
+  files:
+    - mlhub/README.md
+    - mlhub/demo.py
+    - mlhub/keying.py
+
+commands:
+  demo       : rembg
+  keying     : Background removal
