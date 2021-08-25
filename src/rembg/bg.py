@@ -94,15 +94,13 @@ def remove(
     mask = detect.predict(model, np.array(img)).convert("L")
 
     if alpha_matting:
-        try:
-            cutout = alpha_matting_cutout(
+        cutout = alpha_matting_cutout(
                 img,
                 mask,
                 *args, **kwargs
-            )
-        except:
-            cutout = naive_cutout(img, mask)
-    else:
+        )
+
+    if cutout is None:
         cutout = naive_cutout(img, mask)
 
     bio = io.BytesIO()
