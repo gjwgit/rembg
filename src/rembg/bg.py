@@ -23,6 +23,7 @@ def alpha_matting_cutout(
         from scipy.ndimage.morphology import binary_erosion
     except:
         print("PyMatting seems unavailable currently.\nCheck your environment or disable alpha-matting")
+        return None
     else:
         size = img.size
 
@@ -92,6 +93,7 @@ def remove(
     model = get_model(model_name)
     img = Image.open(io.BytesIO(data)).convert("RGB")
     mask = detect.predict(model, np.array(img)).convert("L")
+    cutout = None
 
     if alpha_matting:
         cutout = alpha_matting_cutout(
@@ -100,10 +102,9 @@ def remove(
                 *args, **kwargs
         )
 
-    if cutout is None:
+    if not alpha_matting or cutout is None:
         cutout = naive_cutout(img, mask)
 
     bio = io.BytesIO()
     cutout.save(bio, "PNG")
-
     return bio.getbuffer()
