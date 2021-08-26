@@ -19,6 +19,8 @@ from . import data_loader, u2net
 
 
 def download_file_from_google_drive(id, fname, destination):
+    print("Downloading "+ fname)
+
     head, tail = os.path.split(destination)
     os.makedirs(head, exist_ok=True)
 
@@ -61,7 +63,8 @@ def load_model(model_name: str = "u2net"):
             os.path.expanduser(os.path.join("~", ".u2net", model_name + ".pth")),
         )
         if (
-            not (os.path.exists(path) or os.path.exists("model\\"+model_name+".pth"))
+            not (os.path.exists(path)
+                 or not os.path.exists("model/" + model_name + ".pth"))
             or hasher.md5(path) != "e4f636406ca4e2af789941e7f139ee2e"
         ):
             download_file_from_google_drive(
@@ -77,7 +80,8 @@ def load_model(model_name: str = "u2net"):
             os.path.expanduser(os.path.join("~", ".u2net", model_name + ".pth")),
         )
         if (
-            not (os.path.exists(path) or os.path.exists("model\\"+model_name+".pth"))
+            not (os.path.exists(path)
+                 or not os.path.exists("model/" + model_name + ".pth"))
             or hasher.md5(path) != "347c3d51b01528e5c6c071e3cff1cb55"
         ):
             download_file_from_google_drive(
@@ -93,7 +97,8 @@ def load_model(model_name: str = "u2net"):
             os.path.expanduser(os.path.join("~", ".u2net", model_name + ".pth")),
         )
         if (
-            not (os.path.exists(path) or os.path.exists("model\\"+model_name+".pth"))
+            not (os.path.exists(path)
+                 or not os.path.exists("model/" + model_name + ".pth"))
             or hasher.md5(path) != "09fb4e49b7f785c9f855baf94916840a"
         ):
             download_file_from_google_drive(
@@ -157,7 +162,6 @@ def preprocess(image):
 
 
 def predict(net, item):
-
     sample = preprocess(item)
 
     with torch.no_grad():
