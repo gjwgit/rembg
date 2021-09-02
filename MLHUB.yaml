@@ -2,11 +2,11 @@ meta:
   name         : rembg
   title        : rembg
   keywords     : rembg, background removal, image processing
-  version      : 0.0.2
+  version      : 0.0.4
   languages    : py
   license      : mit
   author       : u6440034@anu.edu.au
-  url          : https://github.com/StafferOliver/rembg
+  url          : https://github.com/gjwgit/rembg
 dependencies:
   pip3:
     - numpy
@@ -22,9 +22,11 @@ dependencies:
     - hsh
 
   files:
-    - README.md
-    - demo.py
-    - keying.py
+    - mlhub/README.md
+    - mlhub/demo.py
+    - mlhub/keying.py
+    - src/
+    - examples/
 
 commands:
   demo       : Run rembg demo with random example from provided pictures
