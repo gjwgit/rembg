@@ -1,17 +1,12 @@
 import errno
 import os
 import sys
-import urllib.request
 
 import numpy as np
 import requests
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torchvision
 from hsh.library.hash import Hasher
 from PIL import Image
-from skimage import transform
 from torchvision import transforms
 from tqdm import tqdm
 
@@ -55,16 +50,15 @@ def download_file_from_google_drive(id, fname, destination):
 
 def load_model(model_name: str = "u2net"):
     hasher = Hasher()
+    path = os.environ.get(
+        "U2NET_PATH",
+        os.path.expanduser(os.path.join("model", model_name + ".pth")),
+    )
 
     if model_name == "u2netp":
         net = u2net.U2NETP(3, 1)
-        path = os.environ.get(
-            "U2NETP_PATH",
-            os.path.expanduser(os.path.join("~", ".u2net", model_name + ".pth")),
-        )
         if (
-            not (os.path.exists(path)
-                 or not os.path.exists("model/" + model_name + ".pth"))
+            not os.path.exists(path)
             or hasher.md5(path) != "e4f636406ca4e2af789941e7f139ee2e"
         ):
             download_file_from_google_drive(
@@ -75,13 +69,8 @@ def load_model(model_name: str = "u2net"):
 
     elif model_name == "u2net":
         net = u2net.U2NET(3, 1)
-        path = os.environ.get(
-            "U2NET_PATH",
-            os.path.expanduser(os.path.join("~", ".u2net", model_name + ".pth")),
-        )
         if (
-            not (os.path.exists(path)
-                 or not os.path.exists("model/" + model_name + ".pth"))
+            not os.path.exists(path)
             or hasher.md5(path) != "347c3d51b01528e5c6c071e3cff1cb55"
         ):
             download_file_from_google_drive(
@@ -92,13 +81,8 @@ def load_model(model_name: str = "u2net"):
 
     elif model_name == "u2net_human_seg":
         net = u2net.U2NET(3, 1)
-        path = os.environ.get(
-            "U2NET_PATH",
-            os.path.expanduser(os.path.join("~", ".u2net", model_name + ".pth")),
-        )
         if (
-            not (os.path.exists(path)
-                 or not os.path.exists("model/" + model_name + ".pth"))
+            not os.path.exists(path)
             or hasher.md5(path) != "09fb4e49b7f785c9f855baf94916840a"
         ):
             download_file_from_google_drive(

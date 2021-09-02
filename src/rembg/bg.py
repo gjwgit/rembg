@@ -1,10 +1,7 @@
 import functools
 import io
-
 import numpy as np
 from PIL import Image
-
-
 from .u2net import detect
 
 
@@ -102,7 +99,7 @@ def remove(
                 *args, **kwargs
         )
 
-    if not alpha_matting or cutout is None:
+    if cutout is None:
         cutout = naive_cutout(img, mask)
 
     bio = io.BytesIO()
