@@ -2,11 +2,11 @@ meta:
   name         : rembg
   title        : rembg
   keywords     : rembg, background removal, image processing
-  version      : 0.0.4
+  version      : 0.0.6
   languages    : py
   license      : mit
   author       : u6440034@anu.edu.au
-  url          : https://github.com/gjwgit/rembg
+  url          : https://github.com/StafferOliver/rembg
 dependencies:
   pip3:
     - numpy

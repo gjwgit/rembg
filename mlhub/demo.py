@@ -18,10 +18,10 @@ Or https://github.com/xuebinqin/U-2-Net for detailed model descriptions.
 """)
 mlask(end='\n')
 
-examples = ['animal-1.jpg', 'animal-2.jpg', 'animal-3.jpg',
-            'car-1.jpg', 'car-2.jpg', 'car-3.jpg',
-            'food-1.jpg',
-            'girl-1.jpg', 'girl-2.jpg', 'girl-1.jpg']
+examples = ['animal-1', 'animal-2', 'animal-3',
+            'car-1', 'car-2', 'car-3',
+            'food-1',
+            'girl-1', 'girl-2', 'girl-1']
 
 input_files = random.sample(examples, 3)
 output_files = ["output-"+x for x in input_files]
@@ -29,31 +29,31 @@ output_files = ["output-"+x for x in input_files]
 # Removal Example 1: Performing Regular Keying
 
 mlcat("Removing Example 1", "Basic background removal using basic example")
-mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[0])
+mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[0] + ".jpg")
 
-f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[0]))
+f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[0] + ".jpg"))
 result = remove(f)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
-f.tofile(os.path.join(get_cmd_cwd(), input_files[0]))
-img.save(os.path.join(get_cmd_cwd(), output_files[0]))
+f.tofile(os.path.join(get_cmd_cwd(), input_files[0] + ".jpg"))
+img.save(os.path.join(get_cmd_cwd(), output_files[0] + ".png"))
 
-mlask(end="\n", prompt="Please find the output in current working directory, named "+output_files[0])
+mlask(end="\n", prompt="Please find the output in current working directory, named " + output_files[0] + ".png")
 del f, img, result
 
 # Removal Example 2: Performing Regular Keying
 
 mlcat("Removing Example 2", "Another example on basic background removal")
-mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[1])
+mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[1] + ".jpg")
 
-f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[1]))
+f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[1] + ".jpg"))
 result = remove(f)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
-f.tofile(os.path.join(get_cmd_cwd(), input_files[1]))
-img.save(os.path.join(get_cmd_cwd(), output_files[1]))
+f.tofile(os.path.join(get_cmd_cwd(), input_files[1] + ".jpg"))
+img.save(os.path.join(get_cmd_cwd(), output_files[1] + ".png"))
 
-mlask(end="\n", prompt="Please find the output in current working directory, named "+output_files[1])
+mlask(end="\n", prompt="Please find the output in current working directory, named "+output_files[1] + ".png")
 del f, img, result
 
 
@@ -63,17 +63,17 @@ mlcat("Removing Example 3", '''
 Alpha matting background removal using basic example.\n
 Naive background removal will be used if PyMatting is not available
 ''')
-mlask(end="\n", prompt="Press Enter to perform alpha matting removal on " + input_files[2])
+mlask(end="\n", prompt="Press Enter to perform alpha matting removal on " + input_files[2] + ".jpg")
 
-f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[2]))
+f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[2] + ".jpg"))
 
 # If alpha-matting is not available, naive keying will be used instead
 result = remove(f, alpha_matting=True)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
-f.tofile(os.path.join(get_cmd_cwd(), input_files[2]))
-img.save(os.path.join(get_cmd_cwd(), 'alpha-' + output_files[2]))
+f.tofile(os.path.join(get_cmd_cwd(), input_files[2] + ".jpg"))
+img.save(os.path.join(get_cmd_cwd(), 'alpha-' + output_files[2] + ".png"))
 
-mlask(end="\n", prompt="Please find the output in current working directory, named alpha-"+output_files[2])
+mlask(end="\n", prompt="Please find the output in current working directory, named alpha-"+output_files[2] + ".png")
 del f, img, result
 
