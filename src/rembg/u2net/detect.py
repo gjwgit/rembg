@@ -50,6 +50,10 @@ def download_file_from_google_drive(id, fname, destination):
 
 def load_model(model_name: str = "u2net"):
     hasher = Hasher()
+
+    if not os.path.exists(os.path.join("model")):
+        os.mkdir("model")
+
     path = os.environ.get(
         "U2NET_PATH",
         os.path.expanduser(os.path.join("model", model_name + ".pth")),
