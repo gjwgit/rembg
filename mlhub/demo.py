@@ -41,7 +41,7 @@ f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[0] + ".j
 result = remove(f)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
-f.tofile(os.path.join(get_cmd_cwd(), input_files[0] + ".jpg"))
+f.tofile(os.path.join(get_cmd_cwd(), 'rembg-output', input_files[0] + ".jpg"))
 img.save(os.path.join(get_cmd_cwd(), 'rembg-output', output_files[0] + ".png"))
 
 mlask(end="\n", prompt="Please find the picture in the output directory, named " + output_files[0] + ".png")
@@ -57,7 +57,7 @@ f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[1] + ".j
 result = remove(f)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
-f.tofile(os.path.join(get_cmd_cwd(), input_files[1] + ".jpg"))
+f.tofile(os.path.join(get_cmd_cwd(), 'rembg-output', input_files[1] + ".jpg"))
 img.save(os.path.join(get_cmd_cwd(), 'rembg-output', output_files[1] + ".png"))
 
 mlask(end="\n", prompt="Please find the picture in the output directory, named "+output_files[1] + ".png")
@@ -78,7 +78,7 @@ f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[2] + ".j
 result = remove(f, alpha_matting=True)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
-f.tofile(os.path.join(get_cmd_cwd(), input_files[2] + ".jpg"))
+f.tofile(os.path.join(get_cmd_cwd(), 'rembg-output', input_files[2] + ".jpg"))
 img.save(os.path.join(get_cmd_cwd(), 'rembg-output', 'alpha-' + output_files[2] + ".png"))
 
 mlask(end="\n", prompt="Please find the picture in the output directory, named "+output_files[2] + "-alpha.png")
