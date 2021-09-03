@@ -24,7 +24,13 @@ examples = ['animal-1', 'animal-2', 'animal-3',
             'girl-1', 'girl-2', 'girl-1']
 
 input_files = random.sample(examples, 3)
-output_files = ["output-"+x for x in input_files]
+output_files = [x+"-out" for x in input_files]
+
+# Creating output folder in current working directory
+
+if not os.path.exists(os.path.join("rembg-output")):
+    os.mkdir("rembg-output")
+    mlcat(text="Output folder has been created in current working directory\n")
 
 # Removal Example 1: Performing Regular Keying
 
@@ -36,10 +42,11 @@ result = remove(f)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
 f.tofile(os.path.join(get_cmd_cwd(), input_files[0] + ".jpg"))
-img.save(os.path.join(get_cmd_cwd(), output_files[0] + ".png"))
+img.save(os.path.join(get_cmd_cwd(), 'rembg-output', output_files[0] + ".png"))
 
-mlask(end="\n", prompt="Please find the output in current working directory, named " + output_files[0] + ".png")
+mlask(end="\n", prompt="Please find the picture in the output directory, named " + output_files[0] + ".png")
 del f, img, result
+
 
 # Removal Example 2: Performing Regular Keying
 
@@ -51,9 +58,9 @@ result = remove(f)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
 f.tofile(os.path.join(get_cmd_cwd(), input_files[1] + ".jpg"))
-img.save(os.path.join(get_cmd_cwd(), output_files[1] + ".png"))
+img.save(os.path.join(get_cmd_cwd(), 'rembg-output', output_files[1] + ".png"))
 
-mlask(end="\n", prompt="Please find the output in current working directory, named "+output_files[1] + ".png")
+mlask(end="\n", prompt="Please find the picture in the output directory, named "+output_files[1] + ".png")
 del f, img, result
 
 
@@ -72,8 +79,8 @@ result = remove(f, alpha_matting=True)
 img = Image.open(io.BytesIO(result)).convert("RGBA")
 
 f.tofile(os.path.join(get_cmd_cwd(), input_files[2] + ".jpg"))
-img.save(os.path.join(get_cmd_cwd(), 'alpha-' + output_files[2] + ".png"))
+img.save(os.path.join(get_cmd_cwd(), 'rembg-output', 'alpha-' + output_files[2] + ".png"))
 
-mlask(end="\n", prompt="Please find the output in current working directory, named alpha-"+output_files[2] + ".png")
+mlask(end="\n", prompt="Please find the picture in the output directory, named "+output_files[2] + "-alpha.png")
 del f, img, result
 
