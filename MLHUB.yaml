@@ -2,24 +2,25 @@ meta:
   name         : rembg
   title        : rembg
   keywords     : rembg, background removal, image processing
-  version      : 0.0.7
+  version      : 0.0.8
   languages    : py
   license      : mit
   author       : u6440034@anu.edu.au
   url          : https://github.com/StafferOliver/rembg
 dependencies:
   pip3:
+    - filetype
+    - hsh
     - numpy
+    - matplotlib
     - pillow
+    - pymatting
     - requests
     - scikit-image
+    - scipy
     - torch
     - torchvision
     - tqdm
-    - scipy
-    - pymatting
-    - filetype
-    - hsh
 
   files:
     - mlhub/README.md

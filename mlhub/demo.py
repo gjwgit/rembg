@@ -6,6 +6,7 @@ from src.rembg.bg import remove
 from PIL import Image, ImageFile
 from mlhub.pkg import mlask, mlcat, get_cmd_cwd
 from mlhub.utils import get_package_dir
+import matplotlib.pyplot as plt
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
@@ -24,13 +25,6 @@ examples = ['animal-1', 'animal-2', 'animal-3',
             'girl-1', 'girl-2', 'girl-1']
 
 input_files = random.sample(examples, 3)
-output_files = [x+"-out" for x in input_files]
-
-# Creating output folder in current working directory
-
-if not os.path.exists(os.path.join("rembg-output")):
-    os.mkdir("rembg-output")
-    mlcat(text="Output folder has been created in current working directory\n")
 
 # Removal Example 1: Performing Regular Keying
 
@@ -39,14 +33,18 @@ mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[0] + "
 
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[0] + ".jpg"))
 result = remove(f)
+f = Image.open(io.BytesIO(f)).convert("RGBA")
 img = Image.open(io.BytesIO(result)).convert("RGBA")
-
-f.tofile(os.path.join(get_cmd_cwd(), 'rembg-output', input_files[0] + ".jpg"))
-img.save(os.path.join(get_cmd_cwd(), 'rembg-output', output_files[0] + ".png"))
-
-mlask(end="\n", prompt="Please find the picture in the output directory, named " + output_files[0] + ".png")
-del f, img, result
-
+fig, plot = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
+plot[0].imshow(f)
+plot[0].set_title('Original Image')
+plot[0].axis('off')
+plot[1].imshow(img)
+plot[1].set_title('Removal Result')
+plot[1].axis('off')
+fig.suptitle('Removal Example 1 on '+ input_files[0] + ".jpg")
+plt.show()
+del f, img, result, fig, plot
 
 # Removal Example 2: Performing Regular Keying
 
@@ -55,14 +53,18 @@ mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[1] + "
 
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[1] + ".jpg"))
 result = remove(f)
+f = Image.open(io.BytesIO(f)).convert("RGBA")
 img = Image.open(io.BytesIO(result)).convert("RGBA")
-
-f.tofile(os.path.join(get_cmd_cwd(), 'rembg-output', input_files[1] + ".jpg"))
-img.save(os.path.join(get_cmd_cwd(), 'rembg-output', output_files[1] + ".png"))
-
-mlask(end="\n", prompt="Please find the picture in the output directory, named "+output_files[1] + ".png")
-del f, img, result
-
+fig, plot = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
+plot[0].imshow(f)
+plot[0].set_title('Original Image')
+plot[0].axis('off')
+plot[1].imshow(img)
+plot[1].set_title('Removal Result')
+plot[1].axis('off')
+fig.suptitle('Removal Example 2 on '+ input_files[1] + ".jpg")
+plt.show()
+del f, img, result, fig, plot
 
 # Removal Example 3: Performing Alpha-matting Keying
 
@@ -76,11 +78,16 @@ f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[2] + ".j
 
 # If alpha-matting is not available, naive keying will be used instead
 result = remove(f, alpha_matting=True)
+f = Image.open(io.BytesIO(f)).convert("RGBA")
 img = Image.open(io.BytesIO(result)).convert("RGBA")
-
-f.tofile(os.path.join(get_cmd_cwd(), 'rembg-output', input_files[2] + ".jpg"))
-img.save(os.path.join(get_cmd_cwd(), 'rembg-output', 'alpha-' + output_files[2] + ".png"))
-
-mlask(end="\n", prompt="Please find the picture in the output directory, named "+output_files[2] + "-alpha.png")
-del f, img, result
+fig, plot = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
+plot[0].imshow(f)
+plot[0].set_title('Original Image')
+plot[0].axis('off')
+plot[1].imshow(img)
+plot[1].set_title('Alpha Removal Result')
+plot[1].axis('off')
+fig.suptitle('Removal Example 3 on '+ input_files[2] + ".jpg")
+plt.show()
+del f, img, result, fig, plot
 
