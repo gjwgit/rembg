@@ -5,7 +5,7 @@ import numpy as np
 from src.rembg.bg import remove
 from PIL import Image, ImageFile
 from mlhub.pkg import mlask, mlcat, get_cmd_cwd
-from mlhub.utils import get_package_dir
+from mlhub.utils import get_package_dir, yes_or_no
 import matplotlib.pyplot as plt
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -26,6 +26,8 @@ examples = ['animal-1', 'animal-2', 'animal-3',
 
 input_files = random.sample(examples, 3)
 
+save_fig = yes_or_no("Do you want to save the results under current working directory?", yes=False)
+
 # Removal Example 1: Performing Regular Keying
 
 mlcat("Removing Example 1", "Basic background removal using basic example")
@@ -43,7 +45,10 @@ plot[1].imshow(img)
 plot[1].set_title('Removal Result')
 plot[1].axis('off')
 fig.suptitle('Removal Example 1 on '+ input_files[0] + ".jpg")
-plt.show()
+if save_fig:
+    plt.savefig(os.path.join(get_cmd_cwd(), 'output-1.png'))
+else:
+    plt.show()
 del f, img, result, fig, plot
 
 # Removal Example 2: Performing Regular Keying
@@ -63,7 +68,10 @@ plot[1].imshow(img)
 plot[1].set_title('Removal Result')
 plot[1].axis('off')
 fig.suptitle('Removal Example 2 on '+ input_files[1] + ".jpg")
-plt.show()
+if save_fig:
+    plt.savefig(os.path.join(get_cmd_cwd(), 'output-2.png'))
+else:
+    plt.show()
 del f, img, result, fig, plot
 
 # Removal Example 3: Performing Alpha-matting Keying
@@ -87,7 +95,12 @@ plot[0].axis('off')
 plot[1].imshow(img)
 plot[1].set_title('Alpha Removal Result')
 plot[1].axis('off')
-fig.suptitle('Removal Example 3 on '+ input_files[2] + ".jpg")
-plt.show()
+fig.suptitle('Alpha Matting Removal Example on '+ input_files[2] + ".jpg")
+if save_fig:
+    plt.savefig(os.path.join(get_cmd_cwd(), 'output-3.png'))
+else:
+    plt.show()
 del f, img, result, fig, plot
 
+if save_fig:
+    mlask(end="\n", prompt="Please refer to current working directory to find the outputs")
