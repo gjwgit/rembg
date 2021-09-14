@@ -8,12 +8,15 @@ import filetype
 from tqdm import tqdm
 from src.rembg.bg import remove
 from PIL import Image, ImageFile
+import matplotlib.pyplot as plt
+from mlhub.utils import get_package_dir
+from mlhub.pkg import get_cmd_cwd
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 model_path = os.environ.get(
-    "U2NETP_PATH",
-    os.path.expanduser(os.path.join("~", ".u2net")),
+    "U2NET_PATH",
+    os.path.expanduser(os.path.join(get_package_dir(), "model")),
 )
 model_choices = [os.path.splitext(os.path.basename(x))[0] for x in set(glob.glob(model_path + "/*"))]
 if len(model_choices) == 0:
@@ -25,7 +28,7 @@ ap.add_argument(
     "input",
     nargs="?",
     default="-",
-    type=argparse.FileType("rb"),
+    type=str,
     help="Path to the input image.",
 )
 
@@ -34,15 +37,8 @@ ap.add_argument(
     "--output",
     nargs="?",
     default="-",
-    type=argparse.FileType("wb"),
+    type=str,
     help="Path to the output png image.",
-)
-
-ap.add_argument(
-    "-p",
-    "--path",
-    nargs=2,
-    help="An input folder and an output folder.",
 )
 
 ap.add_argument(
@@ -52,6 +48,13 @@ ap.add_argument(
     type=str,
     choices=model_choices,
     help="The model name.",
+)
+
+ap.add_argument(
+    '-c',
+    '--compare',
+    action='store_true',
+    help="Display both original and result picture"
 )
 
 ap.add_argument(
@@ -96,64 +99,52 @@ ap.add_argument(
     help="The image base size.",
 )
 
-
 args = ap.parse_args()
 
-r = lambda i: i.buffer.read() if hasattr(i, "buffer") else i.read()
-w = lambda o, data: o.buffer.write(data) if hasattr(o, "buffer") else o.write(data)
-
-if args.path:
-    full_paths = [os.path.abspath(path) for path in args.path]
-
-    input_paths = [full_paths[0]]
-    output_path = full_paths[1]
-
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-
-    files = set()
-
-    for path in input_paths:
-        if os.path.isfile(path):
-            files.add(path)
-        else:
-            input_paths += set(glob.glob(path + "/*"))
-
-    for fi in tqdm(files):
-        fi_type = filetype.guess(fi)
-
-        if fi_type is None:
-            continue
-        elif fi_type.mime.find("image") < 0:
-            continue
-
-        with open(fi, "rb") as input:
-            with open(os.path.join(output_path, os.path.splitext(os.path.basename(fi))[0] + ".png"), "wb") as output:
-                w(
-                    output,
-                    remove(
-                        r(input),
-                        model_name=args.model,
-                        alpha_matting=args.alpha_matting,
-                        alpha_matting_foreground_threshold=args.alpha_matting_foreground_threshold,
-                        alpha_matting_background_threshold=args.alpha_matting_background_threshold,
-                        alpha_matting_erode_structure_size=args.alpha_matting_erode_size,
-                        alpha_matting_base_size=args.alpha_matting_base_size,
-                    ),
-                )
-
+if os.path.isabs(args.input):
+    input_path = args.input
 else:
-    w(
-        args.output,
-        remove(
-            r(args.input),
+    input_path = os.path.join(get_cmd_cwd(), args.input)
+
+if os.path.isabs(args.output):
+    output_path = args.output
+else:
+    output_path = os.path.join(get_cmd_cwd(), args.output)
+
+if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') >= 0:
+    f = np.fromfile(input_path)
+    result = remove(
+            f,
             model_name=args.model,
             alpha_matting=args.alpha_matting,
             alpha_matting_foreground_threshold=args.alpha_matting_foreground_threshold,
             alpha_matting_background_threshold=args.alpha_matting_background_threshold,
             alpha_matting_erode_structure_size=args.alpha_matting_erode_size,
             alpha_matting_base_size=args.alpha_matting_base_size,
-        ),
-    )
+        )
 
+    if args.compare:
+        f = Image.open(io.BytesIO(f)).convert("RGBA")
+        img = Image.open(io.BytesIO(result)).convert("RGBA")
+        fig, plot = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
+        plot[0].imshow(f)
+        plot[0].set_title('Original Image')
+        plot[0].axis('off')
+        plot[1].imshow(img)
+        plot[1].set_title('Removal Result')
+        plot[1].axis('off')
+        fig.suptitle('Removal Result')
+    else:
+        img = Image.open(io.BytesIO(result)).convert("RGBA")
+        plt.imshow(img)
+
+    if args.output is None:
+        plt.show()
+    else:
+        output_dir, _ = os.path.split(output_path)
+        if output_dir != '' and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        plt.savefig(output_path)
+else:
+    raise FileNotFoundError("The input " + input_path + " is not a valid path to a image file")
 
