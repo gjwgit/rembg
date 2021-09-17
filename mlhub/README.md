@@ -26,12 +26,50 @@ Pretrained U-2-Net model will be downloaded on first use
 
 - To key a custom image
 ```shell
-$ ml keying rembg PATH_TO_INPUT_FILE -o PATH_TO_OUTPUT_FILE
+$ ml keying rembg PATH_TO_INPUT_FILE [-o PATH_TO_OUTPUT_FILE]
 ```
-Replace PATH_TO_INPUT_FILE and PATH_TO_OUTPUT_FILE with your corresponding path
+Replace PATH_TO_INPUT_FILE and PATH_TO_OUTPUT_FILE with your corresponding path.
+The output path is optional here. If unspecified, the output file will be generated in the input folder.
+
+- To key a custom image with its original image
+```shell
+$ ml keying rembg PATH_TO_INPUT_FILE -c
+```
+Replace PATH_TO_INPUT_FILE with your corresponding path
 
 - To key a custom image using alpha-matting
 ```shell
 $ ml keying rembg PATH_TO_INPUT_FILE -o PATH_TO_OUTPUT_FILE -a True
 ```
 Replace PATH_TO_INPUT_FILE and PATH_TO_OUTPUT_FILE with your corresponding path
+
+- Full usage of keying.py
+```shell
+usage: keying.py [-h] [-o [OUTPUT]] [-m {u2net,u2netp,u2net_human_seg}] [-c] [-a [ALPHA_MATTING]]
+
+                 [-af ALPHA_MATTING_FOREGROUND_THRESHOLD] [-ab ALPHA_MATTING_BACKGROUND_THRESHOLD]
+                 [-ae ALPHA_MATTING_ERODE_SIZE] [-az ALPHA_MATTING_BASE_SIZE]
+                 input [input ...]
+
+positional arguments:
+  input                 Path to the input image.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o [OUTPUT], --output [OUTPUT]
+                        Path to the output png image.
+  -m {u2net,u2netp,u2net_human_seg}, --model {u2net,u2netp,u2net_human_seg}
+                        The model name.
+  -c, --compare         Display both original and result picture
+  -a [ALPHA_MATTING], --alpha-matting [ALPHA_MATTING]
+                        When true use alpha matting cutout.
+  -af ALPHA_MATTING_FOREGROUND_THRESHOLD, --alpha-matting-foreground-threshold ALPHA_MATTING_FOREGROUND_THRESHOLD
+                        The trimap foreground threshold.
+  -ab ALPHA_MATTING_BACKGROUND_THRESHOLD, --alpha-matting-background-threshold ALPHA_MATTING_BACKGROUND_THRESHOLD
+
+                        The trimap background threshold.
+  -ae ALPHA_MATTING_ERODE_SIZE, --alpha-matting-erode-size ALPHA_MATTING_ERODE_SIZE
+                        Size of element used for the erosion.
+  -az ALPHA_MATTING_BASE_SIZE, --alpha-matting-base-size ALPHA_MATTING_BASE_SIZE
+                        The image base size.
+```

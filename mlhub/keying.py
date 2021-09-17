@@ -27,7 +27,6 @@ ap = argparse.ArgumentParser()
 ap.add_argument(
     "input",
     nargs="?",
-    default="-",
     type=str,
     help="Path to the input image.",
 )
@@ -36,7 +35,6 @@ ap.add_argument(
     "-o",
     "--output",
     nargs="?",
-    default="-",
     type=str,
     help="Path to the output png image.",
 )
@@ -101,15 +99,19 @@ ap.add_argument(
 
 args = ap.parse_args()
 
+if args.input is None:
+    raise FileNotFoundError("Please specify a valid image file as input")
+
 if os.path.isabs(args.input):
     input_path = args.input
 else:
     input_path = os.path.join(get_cmd_cwd(), args.input)
 
-if os.path.isabs(args.output):
-    output_path = args.output
-else:
-    output_path = os.path.join(get_cmd_cwd(), args.output)
+if args.output is not None:
+    if os.path.isabs(args.output):
+        output_path = args.output
+    else:
+        output_path = os.path.join(get_cmd_cwd(), args.output)
 
 if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') >= 0:
     f = np.fromfile(input_path)
@@ -139,7 +141,8 @@ if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') 
         plt.imshow(img)
 
     if args.output is None:
-        plt.show()
+        output_path, output_file = os.path.split(input_path)
+        plt.savefig(os.path.join(output_path, 'out-'+output_file))
     else:
         output_dir, _ = os.path.split(output_path)
         if output_dir != '' and not os.path.exists(output_dir):
