@@ -73,12 +73,28 @@ def naive_cutout(img, mask):
 
 @functools.lru_cache(maxsize=None)
 def get_model(model_name):
-    if model_name == "u2netp":
-        return detect.load_model(model_name="u2netp")
-    if model_name == "u2net_human_seg":
-        return detect.load_model(model_name="u2net_human_seg")
+    error_count = 0
+    return_model = None
+    while error_count < 5:
+        try:
+            if model_name == "u2netp":
+                return_model = detect.load_model(model_name="u2netp")
+                break
+            if model_name == "u2net_human_seg":
+                return_model = detect.load_model(model_name="u2net_human_seg")
+                break
+            else:
+                return_model = detect.load_model(model_name="u2net")
+                break
+        except (OSError, ConnectionError):
+            print("Attempt "+str(error_count+1)+" failed.")
+            error_count += 1
+            continue
+    if return_model is None:
+        raise Exception("All 5 attempts seems failed.\n "
+                        "Please check your Internet connection or download the weight manually and try again")
     else:
-        return detect.load_model(model_name="u2net")
+        return return_model
 
 
 def remove(
