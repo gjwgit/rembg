@@ -3,6 +3,7 @@ import numpy as np
 import io
 import glob
 import os
+import warnings
 from distutils.util import strtobool
 import filetype
 from tqdm import tqdm
@@ -12,7 +13,7 @@ import matplotlib.pyplot as plt
 from mlhub.utils import get_package_dir
 from mlhub.pkg import get_cmd_cwd
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-
+warnings.filterwarnings('ignore')
 
 model_path = os.environ.get(
     "U2NET_PATH",
@@ -53,6 +54,13 @@ ap.add_argument(
     '--compare',
     action='store_true',
     help="Display both original and result picture"
+)
+
+ap.add_argument(
+    '-j',
+    '--jpeg',
+    action='store_true',
+    help="Store/Display the file in JPEG format without transparent layer"
 )
 
 ap.add_argument(
@@ -125,9 +133,13 @@ if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') 
             alpha_matting_base_size=args.alpha_matting_base_size,
         )
 
+    if args.jpeg:
+        img = Image.open(io.BytesIO(result)).convert("RGB")
+    else:
+        img = Image.open(io.BytesIO(result)).convert("RGBA")
+
     if args.compare:
         f = Image.open(io.BytesIO(f)).convert("RGBA")
-        img = Image.open(io.BytesIO(result)).convert("RGBA")
         fig, plot = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
         plot[0].imshow(f)
         plot[0].set_title('Original Image')
@@ -137,12 +149,16 @@ if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') 
         plot[1].axis('off')
         fig.suptitle('Removal Result')
     else:
-        img = Image.open(io.BytesIO(result)).convert("RGBA")
+        plt.axis('off')
         plt.imshow(img)
 
     if args.output is None:
         output_path, output_file = os.path.split(input_path)
-        plt.savefig(os.path.join(output_path, 'out-'+output_file))
+        output_file = output_file.split('.')
+        if args.jpeg:
+            plt.savefig(os.path.join(output_path, output_file[0]+'.out.jpg'))
+        else:
+            plt.savefig(os.path.join(output_path, output_file[0]+'.out.png'))
     else:
         output_dir, _ = os.path.split(output_path)
         if output_dir != '' and not os.path.exists(output_dir):
