@@ -27,9 +27,6 @@ def generate_result(source_file, target_file, alpha_matting=False):
 
 
 class TestEnvironmentalCase(unittest.TestCase):
-    def test_image_support(self):
-        pass
-
     def test_mlhub_support(self):
         try:
             import mlhub.pkg
