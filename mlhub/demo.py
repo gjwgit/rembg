@@ -2,17 +2,18 @@ import os
 import io
 import random
 import numpy as np
+import warnings
 from src.rembg.bg import remove
 from PIL import Image, ImageFile
 from mlhub.pkg import mlask, mlcat, get_cmd_cwd
 from mlhub.utils import get_package_dir, yes_or_no
 import matplotlib.pyplot as plt
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-
+warnings.filterwarnings('ignore')
 
 mlcat("rembg", """\
 rembg is a Python library for static image background removal.\n
-The backbone network based on is u2net.\n
+This library based on u2net as backbone network.\n
 To use this library, extra pretrained model for u2net will be downloaded.\n
 See https://arxiv.org/pdf/2005.09007.pdf for paper\n
 Or https://github.com/xuebinqin/U-2-Net for detailed model descriptions.
@@ -30,7 +31,7 @@ save_fig = yes_or_no("Do you want to save the results under current working dire
 
 # Removal Example 1: Performing Regular Keying
 
-mlcat("Removing Example 1", "Basic background removal using basic example")
+mlcat("\nRemoving Example 1", "Basic background removal using basic example\n")
 mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[0] + ".jpg")
 
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[0] + ".jpg"))
@@ -46,14 +47,15 @@ plot[1].set_title('Removal Result')
 plot[1].axis('off')
 fig.suptitle('Removal Example 1 on '+ input_files[0] + ".jpg")
 if save_fig:
-    plt.savefig(os.path.join(get_cmd_cwd(), 'output-1.png'))
+    plt.savefig(os.path.join(get_cmd_cwd(), input_files[0]+'.out.png'))
 else:
     plt.show()
 del f, img, result, fig, plot
+print("Background removal on " + input_files[0] + ".jpg has completed.\n")
 
 # Removal Example 2: Performing Regular Keying
 
-mlcat("Removing Example 2", "Another example on basic background removal")
+mlcat("\nRemoving Example 2", "Another example on basic background removal\n")
 mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[1] + ".jpg")
 
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[1] + ".jpg"))
@@ -69,15 +71,15 @@ plot[1].set_title('Removal Result')
 plot[1].axis('off')
 fig.suptitle('Removal Example 2 on '+ input_files[1] + ".jpg")
 if save_fig:
-    plt.savefig(os.path.join(get_cmd_cwd(), 'output-2.png'))
+    plt.savefig(os.path.join(get_cmd_cwd(), input_files[1]+'.out.png'))
 else:
     plt.show()
 del f, img, result, fig, plot
+print("Background removal on " + input_files[1] + ".jpg has completed.\n")
 
 # Removal Example 3: Performing Alpha-matting Keying
 
-mlcat("Removing Example 3", '''
-Alpha matting background removal using basic example.\n
+mlcat("\nRemoving Example 3", '''Alpha matting background removal using basic example.\n
 Naive background removal will be used if PyMatting is not available
 ''')
 mlask(end="\n", prompt="Press Enter to perform alpha matting removal on " + input_files[2] + ".jpg")
@@ -97,10 +99,11 @@ plot[1].set_title('Alpha Removal Result')
 plot[1].axis('off')
 fig.suptitle('Alpha Matting Removal Example on '+ input_files[2] + ".jpg")
 if save_fig:
-    plt.savefig(os.path.join(get_cmd_cwd(), 'output-3.png'))
+    plt.savefig(os.path.join(get_cmd_cwd(), input_files[2]+'.out.png'))
 else:
     plt.show()
 del f, img, result, fig, plot
+print("Alpha matting removal on " + input_files[2] + ".jpg has completed.\n")
 
 if save_fig:
     mlask(end="\n", prompt="Please refer to current working directory to find the outputs")
