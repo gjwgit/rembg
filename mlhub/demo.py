@@ -31,7 +31,7 @@ save_fig = yes_or_no("Do you want to save the results under current working dire
 
 # Removal Example 1: Performing Regular Keying
 
-mlcat("\nRemoving Example 1", "Basic background removal using basic example\n")
+mlcat("Removing Example 1", "Basic background removal using basic example.")
 mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[0] + ".jpg")
 
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[0] + ".jpg"))
@@ -55,7 +55,7 @@ print("Background removal on " + input_files[0] + ".jpg has completed.\n")
 
 # Removal Example 2: Performing Regular Keying
 
-mlcat("\nRemoving Example 2", "Another example on basic background removal\n")
+mlcat("Removing Example 2", "Another example on basic background removal.")
 mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[1] + ".jpg")
 
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[1] + ".jpg"))
@@ -79,8 +79,8 @@ print("Background removal on " + input_files[1] + ".jpg has completed.\n")
 
 # Removal Example 3: Performing Alpha-matting Keying
 
-mlcat("\nRemoving Example 3", '''Alpha matting background removal using basic example.\n
-Naive background removal will be used if PyMatting is not available
+mlcat("Removing Example 3", '''Alpha matting background removal using basic example.\n
+Naive background removal will be used if PyMatting is not available.
 ''')
 mlask(end="\n", prompt="Press Enter to perform alpha matting removal on " + input_files[2] + ".jpg")
 

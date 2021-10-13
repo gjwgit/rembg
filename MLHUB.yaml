@@ -2,7 +2,7 @@ meta:
   name         : rembg
   title        : rembg
   keywords     : rembg, background removal, image processing
-  version      : 0.0.10
+  version      : 0.0.11
   languages    : py
   license      : mit
   author       : u6440034@anu.edu.au
@@ -25,10 +25,10 @@ dependencies:
   files:
     - mlhub/README.md
     - mlhub/demo.py
-    - mlhub/remove.py
+    - mlhub/cutout.py
     - src/
     - examples/
 
 commands:
   demo       : Run rembg demo with random example from provided pictures
-  remove     : Background removal on custom images
+  cutout     : Background removal on custom images
