@@ -25,28 +25,28 @@ $ ml demo rembg
 ```
 Pretrained U-2-Net model will be downloaded on first use
 
-- To key a custom image
+- To perform removal on a custom image
 ```shell
-$ ml remove rembg PATH_TO_INPUT_FILE [-o PATH_TO_OUTPUT_FILE]
+$ ml cutout rembg PATH_TO_INPUT_FILE [-o PATH_TO_OUTPUT_FILE]
 ```
 Replace PATH_TO_INPUT_FILE and PATH_TO_OUTPUT_FILE with your corresponding path.
 The output path is optional here. If unspecified, the output file will be generated in the input folder.
 
-- To key a custom image with its original image
+- To perform removal on a custom image with comparison to its original image
 ```shell
-$ ml remove rembg PATH_TO_INPUT_FILE -c
+$ ml cutout rembg PATH_TO_INPUT_FILE -c
 ```
 Replace PATH_TO_INPUT_FILE with your corresponding path
 
-- To key a custom image using alpha-matting
+- To perform removal on a custom image using alpha-matting
 ```shell
-$ ml remove rembg PATH_TO_INPUT_FILE -o PATH_TO_OUTPUT_FILE -a True
+$ ml cutout rembg PATH_TO_INPUT_FILE -o PATH_TO_OUTPUT_FILE -a True
 ```
 Replace PATH_TO_INPUT_FILE and PATH_TO_OUTPUT_FILE with your corresponding path
 
-- Full usage of keying.py
+- Full usage of cutout.py
 ```shell
-usage: remove.py [-h] [-o [OUTPUT]] [-m {u2net,u2netp,u2net_human_seg}] [-c] [-j] [-a [ALPHA_MATTING]]
+usage: cutout.py [-h] [-o [OUTPUT]] [-m {u2net,u2netp,u2net_human_seg}] [-c] [-j] [-a [ALPHA_MATTING]]
                  [-af ALPHA_MATTING_FOREGROUND_THRESHOLD] [-ab ALPHA_MATTING_BACKGROUND_THRESHOLD]
                  [-ae ALPHA_MATTING_ERODE_SIZE] [-az ALPHA_MATTING_BASE_SIZE]
                  [input]
