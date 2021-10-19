@@ -27,7 +27,8 @@ examples = ['animal-1', 'animal-2', 'animal-3',
 
 input_files = random.sample(examples, 3)
 
-save_fig = yes_or_no("Do you want to save the results under current working directory?", yes=False)
+save_fig = yes_or_no("Do you want to save the results under current working directory?",
+                     yes=False)
 
 # Removal Example 1: Performing Regular Keying
 
@@ -82,7 +83,8 @@ print("Background removal on " + input_files[1] + ".jpg has completed.\n")
 mlcat("Removing Example 3", '''Alpha matting background removal using basic example.\n
 Naive background removal will be used if PyMatting is not available.
 ''')
-mlask(end="\n", prompt="Press Enter to perform alpha matting removal on " + input_files[2] + ".jpg")
+mlask(end="\n",
+      prompt="Press Enter to perform alpha matting removal on " + input_files[2] + ".jpg")
 
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[2] + ".jpg"))
 
@@ -106,4 +108,5 @@ del f, img, result, fig, plot
 print("Alpha matting removal on " + input_files[2] + ".jpg has completed.\n")
 
 if save_fig:
-    mlask(end="\n", prompt="Please refer to current working directory to find the outputs")
+    mlask(end="\n",
+          prompt="Please refer to current working directory to find the outputs")

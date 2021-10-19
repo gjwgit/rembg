@@ -3,7 +3,7 @@ import io
 import numpy as np
 from PIL import Image
 from .u2net import detect
-
+from pickle import UnpicklingError
 
 def alpha_matting_cutout(
     img,
@@ -86,7 +86,7 @@ def get_model(model_name):
             else:
                 return_model = detect.load_model(model_name="u2net")
                 break
-        except (OSError, ConnectionError):
+        except (OSError, ConnectionError, UnpicklingError):
             print("Attempt "+str(error_count+1)+" failed.")
             error_count += 1
             continue

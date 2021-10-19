@@ -2,7 +2,7 @@ meta:
   name         : rembg
   title        : rembg
   keywords     : rembg, background removal, image processing
-  version      : 0.0.11
+  version      : 0.0.12
   languages    : py
   license      : mit
   author       : u6440034@anu.edu.au
