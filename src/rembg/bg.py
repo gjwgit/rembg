@@ -4,6 +4,8 @@ import numpy as np
 from PIL import Image
 from .u2net import detect
 from pickle import UnpicklingError
+import cv2
+
 
 def alpha_matting_cutout(
     img,
@@ -121,3 +123,47 @@ def remove(
     bio = io.BytesIO()
     cutout.save(bio, "PNG")
     return bio.getbuffer()
+
+
+def extract_frame(file_path):
+    cap = cv2.VideoCapture(file_path)
+    flag, img = cap.read()
+    while flag:
+        yield img
+        flag, img = cap.read()
+    cap.release()
+
+
+def video_remove(
+    data,
+    output_path,
+    model_name="u2net",
+    alpha_matting=False,
+    *args, **kwargs
+):
+    model = get_model(model_name)
+
+    cap = cv2.VideoCapture(data)
+    fps = int(round(cap.get(cv2.CAP_PROP_FPS)))
+    fourcc = cap.get(cv2.CAP_PROP_FOURCC)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # frame_counts = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    cap.release()
+
+    video = cv2.VideoWriter(output_path, fourcc, fps, (width,height))
+
+    for img in extract_frame(file_path=data):
+        mask = detect.predict(model, np.array(img)).convert("L")
+        cutout = None
+        if alpha_matting:
+            cutout = alpha_matting_cutout(
+                img,
+                mask,
+                *args, **kwargs
+            )
+        if cutout is None:
+            cutout = naive_cutout(img, mask)
+        video.write(cutout)
+    video.release()
+    return True
