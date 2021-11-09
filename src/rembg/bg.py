@@ -68,8 +68,9 @@ def alpha_matting_cutout(
 
 
 def naive_cutout(img, mask):
-    empty = Image.new("RGBA", (img.size), 0)
-    cutout = Image.composite(img, empty, mask.resize(img.size, Image.LANCZOS))
+    img_shape = img.size if type(img) == Image.Image else img.shape[0:2]
+    empty = Image.new("RGBA", img_shape, 0)
+    cutout = Image.composite(img, empty, mask.resize(img_shape, Image.LANCZOS))
     return cutout
 
 
@@ -129,7 +130,7 @@ def extract_frame(file_path):
     cap = cv2.VideoCapture(file_path)
     flag, img = cap.read()
     while flag:
-        yield img
+        yield Image.fromarray(img.astype('uint8')).convert("RGBA")
         flag, img = cap.read()
     cap.release()
 
@@ -145,14 +146,12 @@ def video_remove(
 
     cap = cv2.VideoCapture(data)
     fps = int(round(cap.get(cv2.CAP_PROP_FPS)))
-    fourcc = cap.get(cv2.CAP_PROP_FOURCC)
+    fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    # frame_counts = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     cap.release()
 
     video = cv2.VideoWriter(output_path, fourcc, fps, (width,height))
-
     for img in extract_frame(file_path=data):
         mask = detect.predict(model, np.array(img)).convert("L")
         cutout = None
@@ -164,6 +163,6 @@ def video_remove(
             )
         if cutout is None:
             cutout = naive_cutout(img, mask)
-        video.write(cutout)
+        video.write(cv2.cvtColor(np.array(cutout), cv2.COLOR_RGBA2RGB))
     video.release()
     return True
