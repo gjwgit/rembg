@@ -6,8 +6,7 @@ import os
 import warnings
 from distutils.util import strtobool
 import filetype
-from tqdm import tqdm
-from src.rembg.bg import remove
+from src.rembg.bg import remove, alpha_layer_remove, video_remove
 from PIL import Image, ImageFile
 import matplotlib.pyplot as plt
 from mlhub.utils import get_package_dir
@@ -54,13 +53,6 @@ ap.add_argument(
     '--compare',
     action='store_true',
     help="Display both original and result picture"
-)
-
-ap.add_argument(
-    '-j',
-    '--jpeg',
-    action='store_true',
-    help="Store/Display the file in JPEG format without transparent layer"
 )
 
 ap.add_argument(
@@ -121,8 +113,11 @@ if args.output is not None:
     else:
         output_path = os.path.join(get_cmd_cwd(), args.output)
 
-if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') >= 0:
+if os.path.exists(input_path) \
+   and filetype.guess(input_path).mime.find('image') >= 0:
     f = np.fromfile(input_path)
+    jpeg_flag = filetype.guess(input_path).mime.find('jpeg') >= 0
+
     result = remove(
             f,
             model_name=args.model,
@@ -133,8 +128,8 @@ if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') 
             alpha_matting_base_size=args.alpha_matting_base_size,
         )
 
-    if args.jpeg:
-        img = Image.open(io.BytesIO(result)).convert("RGB")
+    if jpeg_flag:
+        img = alpha_layer_remove(np.array(Image.open(io.BytesIO(result))))
     else:
         img = Image.open(io.BytesIO(result)).convert("RGBA")
 
@@ -155,7 +150,7 @@ if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') 
     if args.output is None:
         output_path, output_file = os.path.split(input_path)
         output_file = output_file.split('.')
-        if args.jpeg:
+        if jpeg_flag:
             plt.savefig(os.path.join(output_path, output_file[0]+'.out.jpg'))
         else:
             plt.savefig(os.path.join(output_path, output_file[0]+'.out.png'))
@@ -164,6 +159,14 @@ if os.path.exists(input_path) and filetype.guess(input_path).mime.find('image') 
         if output_dir != '' and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         plt.savefig(output_path)
+
+elif os.path.exists(input_path) \
+     and filetype.guess(input_path).mime.find('video') >= 0:
+    if not os.path.exists(output_path):
+        raise FileNotFoundError("You have to specific a valid output path for a video input")
+    else:
+        flag = video_remove(input_path, output_path)
+
 else:
     raise FileNotFoundError("The input " + input_path + " is not a valid path to a image file")
 

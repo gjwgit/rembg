@@ -135,6 +135,12 @@ def extract_frame(file_path):
     cap.release()
 
 
+def alpha_layer_remove(image, bg_color=np.array([255, 255, 255])):
+    alpha = (image[:, :, 3] / 255).reshape(image.shape[:2] + (1,))
+    output = bg_color * (1 - alpha) + (image[:, :, :3] * alpha)
+    return output.astype(np.uint8)
+
+
 def video_remove(
     data,
     output_path,
@@ -151,7 +157,7 @@ def video_remove(
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     cap.release()
 
-    video = cv2.VideoWriter(output_path, fourcc, fps, (width,height))
+    video = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     for img in extract_frame(file_path=data):
         mask = detect.predict(model, np.array(img)).convert("L")
         cutout = None
@@ -163,6 +169,6 @@ def video_remove(
             )
         if cutout is None:
             cutout = naive_cutout(img, mask)
-        video.write(cv2.cvtColor(np.array(cutout), cv2.COLOR_RGBA2RGB))
+        video.write(alpha_layer_remove(np.array(cutout)))
     video.release()
     return True
