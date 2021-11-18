@@ -116,8 +116,6 @@ if args.output is not None:
 if os.path.exists(input_path) \
    and filetype.guess(input_path).mime.find('image') >= 0:
     f = np.fromfile(input_path)
-    jpeg_flag = filetype.guess(input_path).mime.find('jpeg') >= 0
-
     result = remove(
             f,
             model_name=args.model,
@@ -128,10 +126,8 @@ if os.path.exists(input_path) \
             alpha_matting_base_size=args.alpha_matting_base_size,
         )
 
-    if jpeg_flag:
-        img = alpha_layer_remove(np.array(Image.open(io.BytesIO(result))))
-    else:
-        img = Image.open(io.BytesIO(result)).convert("RGBA")
+    if filetype.guess(input_path).mime.find('jpeg') >= 0:
+        result = alpha_layer_remove(np.array(result))
 
     if args.compare:
         f = Image.open(io.BytesIO(f)).convert("RGBA")
@@ -139,18 +135,18 @@ if os.path.exists(input_path) \
         plot[0].imshow(f)
         plot[0].set_title('Original Image')
         plot[0].axis('off')
-        plot[1].imshow(img)
+        plot[1].imshow(result)
         plot[1].set_title('Removal Result')
         plot[1].axis('off')
         fig.suptitle('Removal Result')
     else:
         plt.axis('off')
-        plt.imshow(img)
+        plt.imshow(result)
 
     if args.output is None:
         output_path, output_file = os.path.split(input_path)
         output_file = output_file.split('.')
-        if jpeg_flag:
+        if filetype.guess(input_path).mime.find('jpeg') >= 0:
             plt.savefig(os.path.join(output_path, output_file[0]+'.out.jpg'))
         else:
             plt.savefig(os.path.join(output_path, output_file[0]+'.out.png'))
@@ -162,7 +158,7 @@ if os.path.exists(input_path) \
 
 elif os.path.exists(input_path) \
      and filetype.guess(input_path).mime.find('video') >= 0:
-    if not os.path.exists(output_path):
+    if not os.path.exists(os.path.split(output_path)[0]):
         raise FileNotFoundError("You have to specific a valid output path for a video input")
     else:
         flag = video_remove(input_path, output_path)

@@ -4,7 +4,6 @@ import numpy as np
 from PIL import Image
 from .u2net import detect
 from pickle import UnpicklingError
-import cv2
 
 
 def alpha_matting_cutout(
@@ -107,7 +106,10 @@ def remove(
     *args, **kwargs
 ):
     model = get_model(model_name)
-    img = Image.open(io.BytesIO(data)).convert("RGB")
+    if isinstance(data, np.ndarray):
+        img = Image.open(io.BytesIO(data)).convert("RGB")
+    else:
+        img = data
     mask = detect.predict(model, np.array(img)).convert("L")
     cutout = None
 
@@ -123,10 +125,16 @@ def remove(
 
     bio = io.BytesIO()
     cutout.save(bio, "PNG")
-    return bio.getbuffer()
+    return Image.open(io.BytesIO(bio.getbuffer())).convert("RGBA")
 
 
 def extract_frame(file_path):
+    try:
+        import cv2
+    except ModuleNotFoundError:
+        print("OpenCV library is not currently installed, which is required for this functionality")
+        print("Please run 'pip install opencv-python' in command-line to install dependency")
+        return False
     cap = cv2.VideoCapture(file_path)
     flag, img = cap.read()
     while flag:
@@ -142,15 +150,18 @@ def alpha_layer_remove(image, bg_color=np.array([255, 255, 255])):
 
 
 def video_remove(
-    data,
+    input_path,
     output_path,
-    model_name="u2net",
-    alpha_matting=False,
     *args, **kwargs
 ):
-    model = get_model(model_name)
+    try:
+        import cv2
+    except ModuleNotFoundError:
+        print("OpenCV library is not currently installed, which is required for this functionality")
+        print("Please run 'pip install opencv-python' in command-line to install dependency")
+        return False
 
-    cap = cv2.VideoCapture(data)
+    cap = cv2.VideoCapture(input_path)
     fps = int(round(cap.get(cv2.CAP_PROP_FPS)))
     fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -158,17 +169,8 @@ def video_remove(
     cap.release()
 
     video = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-    for img in extract_frame(file_path=data):
-        mask = detect.predict(model, np.array(img)).convert("L")
-        cutout = None
-        if alpha_matting:
-            cutout = alpha_matting_cutout(
-                img,
-                mask,
-                *args, **kwargs
-            )
-        if cutout is None:
-            cutout = naive_cutout(img, mask)
-        video.write(alpha_layer_remove(np.array(cutout)))
+    for img in extract_frame(file_path=input_path):
+        result = remove(img, *args, **kwargs)
+        video.write(alpha_layer_remove(np.array(result)))
     video.release()
     return True
