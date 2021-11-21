@@ -1,5 +1,7 @@
 import functools
 import io
+import sys
+
 import numpy as np
 from PIL import Image
 from .u2net import detect
@@ -68,8 +70,11 @@ def alpha_matting_cutout(
 
 def naive_cutout(img, mask):
     img_shape = img.size if type(img) == Image.Image else img.shape[0:2]
+    print(type(img_shape))
     empty = Image.new("RGBA", img_shape, 0)
-    cutout = Image.composite(img, empty, mask.resize(img_shape, Image.LANCZOS))
+    cutout = Image.composite(img,
+                             empty,
+                             mask.resize(img_shape, Image.LANCZOS))
     return cutout
 
 
@@ -152,25 +157,62 @@ def alpha_layer_remove(image, bg_color=np.array([255, 255, 255])):
 def video_remove(
     input_path,
     output_path,
+    model_name="u2net",
+    alpha_matting=False,
     *args, **kwargs
 ):
+    # try:
+    #     import cv2
+    # except ModuleNotFoundError:
+    #     print("OpenCV library is not currently installed, which is required for this functionality")
+    #     print("Please run 'pip install opencv-python' in command-line to install dependency")
+    #     return False
+    #
+    # cap = cv2.VideoCapture(input_path)
+    # fps = int(round(cap.get(cv2.CAP_PROP_FPS)))
+    # fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
+    # width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    # height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # cap.release()
+    #
+    # video = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+    # for img in extract_frame(file_path=input_path):
+    #     result = remove(img, *args, **kwargs)
+    #     video.write(alpha_layer_remove(np.array(result)))
+    # video.release()
+
     try:
-        import cv2
+        import ffmpeg
     except ModuleNotFoundError:
-        print("OpenCV library is not currently installed, which is required for this functionality")
-        print("Please run 'pip install opencv-python' in command-line to install dependency")
+        print("ffmpeg library is not currently installed, which is required for this functionality")
+        print("Please run 'pip install opencv-python' and 'apt install ffmpeg' in command-line to install dependency")
         return False
+    probe = ffmpeg.probe(input_path)
+    width = probe['streams'][0]['width']
+    height = probe['streams'][0]['height']
+    frame_rate = probe['streams'][0]['avg_frame_rate']
+    data = ffmpeg.input(input_path)
+    video_frames = np.frombuffer(data
+                                 .output('pipe:', format='rawvideo', pix_fmt='rgb24')
+                                 .run(quiet=True)[0], np.uint8).reshape([-1, width, height, 3])
+    output = ffmpeg.input('pipe:', format='rawvideo', s='{}x{}'.format(width, height)) \
+                   .output(output_path, r=frame_rate).overwrite_output() \
+                   .run_async(pipe_stdin=True, quiet=True)
+    audio = data.audio
+    model = get_model(model_name)
+    for i in range(video_frames.shape[0]):
+        img = Image.fromarray(video_frames[i, :, :, :])
+        mask = detect.predict(model, img).convert("L")
+        cutout = None
 
-    cap = cv2.VideoCapture(input_path)
-    fps = int(round(cap.get(cv2.CAP_PROP_FPS)))
-    fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    cap.release()
-
-    video = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-    for img in extract_frame(file_path=input_path):
-        result = remove(img, *args, **kwargs)
-        video.write(alpha_layer_remove(np.array(result)))
-    video.release()
+        if alpha_matting:
+            cutout = alpha_matting_cutout(
+                img,
+                mask,
+                *args, **kwargs
+            )
+        if cutout is None:
+            cutout = naive_cutout(img, mask)
+        output.stdin.write(alpha_layer_remove(cutout).tobytes())
+    output.stdin.close()
     return True
