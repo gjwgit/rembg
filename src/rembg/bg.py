@@ -2,9 +2,10 @@ import functools
 import io
 import numpy as np
 from PIL import Image
+from skimage import transform
+from skimage.filters import gaussian
 from .u2net import detect
 from pickle import UnpicklingError
-
 
 def alpha_matting_cutout(
     img,
@@ -87,6 +88,9 @@ def get_model(model_name):
             if model_name == "u2net_human_seg":
                 return_model = detect.load_model(model_name="u2net_human_seg")
                 break
+            if model_name == "u2net_portrait":
+                return_model = detect.load_model(model_name="u2net_portrait")
+                break
             else:
                 return_model = detect.load_model(model_name="u2net")
                 break
@@ -112,7 +116,7 @@ def remove(
         img = Image.open(io.BytesIO(data)).convert("RGB")
     else:
         img = data
-    mask = detect.predict(model, np.array(img)).convert("L")
+    mask = Image.fromarray(detect.predict(model, np.array(img)) * 255).convert("L")
     cutout = None
 
     if alpha_matting:
@@ -130,7 +134,33 @@ def remove(
     return Image.open(io.BytesIO(bio.getbuffer())).convert("RGBA")
 
 
+def portrait(
+    data,
+    model_name='u2net_portrait',
+    composite=False,
+    sigma=2,
+    alpha=0.5
+):
+    model = get_model(model_name)
+    if isinstance(data, np.ndarray):
+        img = data
+    else:
+        img = np.array(data)
+    output = detect.predict(model, img, True)
+    if composite:
+        output = transform.resize(output, img.shape[0:2],order=2)
+        output = output/(np.amax(output)+1e-8) * 255
+        output = output[:,:,np.newaxis]
+        img_blurred = gaussian(img,sigma=sigma,preserve_range=True)
+        output = img_blurred*alpha + output*(1-alpha)
+        output = Image.fromarray(output.astype(np.uint8)).convert('RGB')
+    else:
+        output = Image.fromarray(output * 255).convert('RGB')
+    return output
+
+
 def extract_frame(file_path):
+    # Deprecated
     try:
         import cv2
     except ModuleNotFoundError:
@@ -179,11 +209,10 @@ def video_remove(
     output = ffmpeg.input('pipe:', format='rawvideo', pix_fmt='rgb24', s='{}x{}'.format(width, height)) \
                    .output(output_path, r=frame_rate).overwrite_output() \
                    .run_async(pipe_stdin=True, quiet=True)
-    audio = data.audio
     model = get_model(model_name)
     for i in range(video_frames.shape[0]):
         img = Image.fromarray(video_frames[i, :, :, :]).convert('RGB')
-        mask = detect.predict(model, np.array(img)).convert("L")
+        mask = Image.fromarray(detect.predict(model, np.array(img)) * 255).convert("L")
         cutout = None
         if alpha_matting:
             cutout = alpha_matting_cutout(
@@ -194,6 +223,49 @@ def video_remove(
         if cutout is None:
             cutout = naive_cutout(img, mask)
         output.stdin.write(alpha_layer_remove(cutout).tobytes())
+    output.stdin.close()
+    output.wait()
+    return True
+
+
+def video_portrait(
+    input_path,
+    output_path,
+    model_name='u2net_portrait',
+    composite=False,
+    sigma=2,
+    alpha=0.5):
+    try:
+        import ffmpeg
+    except ModuleNotFoundError:
+        print("ffmpeg library is not currently installed, which is required for this functionality")
+        print("Please run 'pip install opencv-python' and 'apt install ffmpeg' in command-line to install dependency")
+        return False
+    probe = ffmpeg.probe(input_path)
+    width = probe['streams'][0]['width']
+    height = probe['streams'][0]['height']
+    frame_rate = probe['streams'][0]['avg_frame_rate']
+    data = ffmpeg.input(input_path)
+    video_frames = np.frombuffer(data
+                                 .output('pipe:', format='rawvideo', pix_fmt='rgb24')
+                                 .run(quiet=True)[0], np.uint8).reshape([-1, height, width, 3])
+    output = ffmpeg.input('pipe:', format='rawvideo', pix_fmt='rgb24', s='{}x{}'.format(width, height)) \
+                   .output(output_path, r=frame_rate).overwrite_output() \
+                   .run_async(pipe_stdin=True, quiet=True)
+    model = get_model(model_name)
+    for i in range(video_frames.shape[0]):
+        img = Image.fromarray(video_frames[i, :, :, :]).convert('RGB')
+        portrait = detect.predict(model, img, True)
+        if composite:
+            portrait = transform.resize(portrait, img.shape[0:2], order=2)
+            portrait = portrait / (np.amax(portrait) + 1e-8) * 255
+            portrait = portrait[:, :, np.newaxis]
+            img_blurred = gaussian(img, sigma=sigma, preserve_range=True)
+            portrait = img_blurred * alpha + portrait * (1 - alpha)
+            portrait = portrait.astype(np.uint8)
+        else:
+            portrait = (portrait * 255).astype(np.uint8)
+        output.stdin.write(portrait.tobytes())
     output.stdin.close()
     output.wait()
     return True

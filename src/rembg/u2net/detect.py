@@ -5,6 +5,7 @@ import sys
 import numpy as np
 import requests
 import torch
+from torch.autograd import Variable
 from hsh.library.hash import Hasher
 from PIL import Image
 from torchvision import transforms
@@ -48,7 +49,9 @@ def download_file_from_google_drive(id, fname, destination):
             bar.update(size)
 
 
-def load_model(model_name: str = "u2net"):
+def load_model(model_name: str = None):
+    if model_name is None:
+        model_name = 'u2net'
     hasher = Hasher()
 
     if not os.path.exists(os.path.join("model")):
@@ -94,9 +97,20 @@ def load_model(model_name: str = "u2net"):
                 "u2net_human_seg.pth",
                 path,
             )
+    elif model_name == "u2net_portrait":
+        net = u2net.U2NET(3, 1)
+        if (
+            not os.path.exists(path)
+            or hasher.md5(path) != 'c7cff57409664b679dc7a5a445b259e4'
+        ):
+            download_file_from_google_drive(
+                "1IG3HdpcRiDoWNookbncQjeaPN28t90yW",
+                "u2net_portrait.pth",
+                path,
+            )
     else:
         print("Choose between u2net, u2net_human_seg or u2netp", file=sys.stderr)
-
+    print(model_name)
     try:
         if torch.cuda.is_available():
             net.load_state_dict(torch.load(path))
@@ -149,7 +163,7 @@ def preprocess(image):
     return sample
 
 
-def predict(net, item):
+def predict(net, item, portrait=False):
     sample = preprocess(item)
 
     with torch.no_grad():
@@ -163,13 +177,37 @@ def predict(net, item):
 
         d1, d2, d3, d4, d5, d6, d7 = net(inputs_test)
 
-        pred = d1[:, 0, :, :]
+        if portrait:
+            pred = 1.0 - d1[:, 0, :, :]
+        else:
+            pred = d1[:, 0, :, :]
         predict = norm_pred(pred)
 
         predict = predict.squeeze()
         predict_np = predict.cpu().detach().numpy()
-        img = Image.fromarray(predict_np * 255).convert("RGB")
+        # img = Image.fromarray(predict_np * 255).convert("RGB")
 
-        del d1, d2, d3, d4, d5, d6, d7, pred, predict, predict_np, inputs_test, sample
+        del d1, d2, d3, d4, d5, d6, d7, pred, predict, inputs_test, sample
 
-        return img
+        return predict_np
+
+
+def inference(net,input):
+    # Deprecated
+    # # normalize the input
+    # tmpImg = np.zeros((input.shape[0],input.shape[1],3))
+    # input = input/np.max(input)
+    #
+    # tmpImg[:,:,0] = (input[:,:,2]-0.406)/0.225
+    # tmpImg[:,:,1] = (input[:,:,1]-0.456)/0.224
+    # tmpImg[:,:,2] = (input[:,:,0]-0.485)/0.229
+    #
+    # # convert BGR to RGB
+    # tmpImg = input.transpose((2, 0, 1))
+    # tmpImg = tmpImg[np.newaxis,:,:,:]
+    # tmpImg = torch.from_numpy(tmpImg)
+    #
+    # # convert numpy array to torch tensor
+    # print(tmpImg.shape)
+    # tmpImg = tmpImg.type(torch.FloatTensor)
+    pass
