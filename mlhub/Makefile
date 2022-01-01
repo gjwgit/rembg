@@ -2,7 +2,7 @@
 #
 # Generic Makefile
 #
-# Time-stamp: <Sunday 2021-11-21 09:12:16 AEDT Graham Williams>
+# Time-stamp: <Tuesday 2021-11-23 16:59:06 AEDT Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -64,3 +64,6 @@ help::
 
 locals:
 	@echo "This might be the instructions to install $(APP)"
+
+install:
+	install demo.py ~/.mlhub/rembg/
