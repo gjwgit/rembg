@@ -4,7 +4,6 @@ import io
 import glob
 import os
 import warnings
-from distutils.util import strtobool
 import filetype
 from src.rembg.bg import portrait, video_portrait
 from PIL import Image, ImageFile
@@ -19,9 +18,6 @@ model_path = os.environ.get(
     "U2NET_PATH",
     os.path.expanduser(os.path.join(get_package_dir(), "model")),
 )
-model_choices = [os.path.splitext(os.path.basename(x))[0] for x in set(glob.glob(model_path + "/*"))]
-if len(model_choices) == 0:
-    model_choices = ["u2net", "u2netp", "u2net_human_seg"]
 
 ap = argparse.ArgumentParser()
 
@@ -84,12 +80,11 @@ if os.path.exists(input_path) \
     f = np.fromfile(input_path)
     result = portrait(
         f,
-        model_name=args.model,
+        model_name='u2net_portrait',
         composite=args.composite,
         sigma=args.composite_sigma,
         alpha=args.composite_alpha
     )
-    f = Image.open(io.BytesIO(f)).convert("RGBA")
     plt.axis('off')
     plt.imshow(result)
 
