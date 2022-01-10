@@ -7,6 +7,7 @@ from skimage.filters import gaussian
 from .u2net import detect
 from pickle import UnpicklingError
 
+
 def alpha_matting_cutout(
     img,
     mask,
@@ -146,6 +147,9 @@ def portrait(
         img = data
     else:
         img = np.array(data)
+    if img.shape[0] < 512 and img.shape[1] < 512:
+        print("The size of the input picture is too small to generate. The result may be unexpected.")
+        print("To obtain a good portrait, use a picture larger than 512*512 with a clear face.")
     output = detect.predict(model, img, True)
     if composite:
         output = transform.resize(output, img.shape[0:2],order=2)
@@ -255,17 +259,17 @@ def video_portrait(
     model = get_model(model_name)
     for i in range(video_frames.shape[0]):
         img = Image.fromarray(video_frames[i, :, :, :]).convert('RGB')
-        portrait = detect.predict(model, img, True)
+        result = detect.predict(model, img, True)
         if composite:
-            portrait = transform.resize(portrait, img.shape[0:2], order=2)
-            portrait = portrait / (np.amax(portrait) + 1e-8) * 255
-            portrait = portrait[:, :, np.newaxis]
+            result = transform.resize(result, img.shape[0:2], order=2)
+            result = result / (np.amax(result) + 1e-8) * 255
+            result = result[:, :, np.newaxis]
             img_blurred = gaussian(img, sigma=sigma, preserve_range=True)
-            portrait = img_blurred * alpha + portrait * (1 - alpha)
-            portrait = portrait.astype(np.uint8)
+            result = img_blurred * alpha + result * (1 - alpha)
+            result = result.astype(np.uint8)
         else:
-            portrait = (portrait * 255).astype(np.uint8)
-        output.stdin.write(portrait.tobytes())
+            result = (result * 255).astype(np.uint8)
+        output.stdin.write(result.tobytes())
     output.stdin.close()
     output.wait()
     return True
