@@ -5,9 +5,7 @@ import sys
 import numpy as np
 import requests
 import torch
-from torch.autograd import Variable
 from hsh.library.hash import Hasher
-from PIL import Image
 from torchvision import transforms
 from tqdm import tqdm
 
@@ -190,24 +188,3 @@ def predict(net, item, portrait=False):
         del d1, d2, d3, d4, d5, d6, d7, pred, predict, inputs_test, sample
 
         return predict_np
-
-
-def inference(net,input):
-    # Deprecated
-    # # normalize the input
-    # tmpImg = np.zeros((input.shape[0],input.shape[1],3))
-    # input = input/np.max(input)
-    #
-    # tmpImg[:,:,0] = (input[:,:,2]-0.406)/0.225
-    # tmpImg[:,:,1] = (input[:,:,1]-0.456)/0.224
-    # tmpImg[:,:,2] = (input[:,:,0]-0.485)/0.229
-    #
-    # # convert BGR to RGB
-    # tmpImg = input.transpose((2, 0, 1))
-    # tmpImg = tmpImg[np.newaxis,:,:,:]
-    # tmpImg = torch.from_numpy(tmpImg)
-    #
-    # # convert numpy array to torch tensor
-    # print(tmpImg.shape)
-    # tmpImg = tmpImg.type(torch.FloatTensor)
-    pass

@@ -163,22 +163,6 @@ def portrait(
     return output
 
 
-def extract_frame(file_path):
-    # Deprecated
-    try:
-        import cv2
-    except ModuleNotFoundError:
-        print("OpenCV library is not currently installed, which is required for this functionality")
-        print("Please run 'pip install opencv-python' in command-line to install dependency")
-        return False
-    cap = cv2.VideoCapture(file_path)
-    flag, img = cap.read()
-    while flag:
-        yield Image.fromarray(img.astype('uint8')).convert("RGBA")
-        flag, img = cap.read()
-    cap.release()
-
-
 def alpha_layer_remove(input_image, bg_color=np.array([255, 255, 255])):
     if isinstance(input_image, np.ndarray):
         img = input_image
