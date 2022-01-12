@@ -147,9 +147,9 @@ if os.path.exists(input_path) \
         output_path, output_file = os.path.split(input_path)
         output_file = output_file.split('.')
         if filetype.guess(input_path).mime.find('jpeg') >= 0:
-            plt.savefig(os.path.join(output_path, output_file[0]+'.out.jpg'))
+            plt.savefig(os.path.join(output_path, output_file[0]+'_out.jpg'))
         else:
-            plt.savefig(os.path.join(output_path, output_file[0]+'.out.png'))
+            plt.savefig(os.path.join(output_path, output_file[0]+'_out.png'))
     else:
         output_dir, _ = os.path.split(output_path)
         if output_dir != '' and not os.path.exists(output_dir):

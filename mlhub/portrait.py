@@ -1,7 +1,4 @@
 import argparse
-import numpy as np
-import io
-import glob
 import os
 import warnings
 import filetype
@@ -77,7 +74,7 @@ if args.output is not None:
 
 if os.path.exists(input_path) \
     and filetype.guess(input_path).mime.find('image') >= 0:
-    f = np.fromfile(input_path)
+    f = Image.open(input_path).convert("RGB")
     result = portrait(
         f,
         model_name='u2net_portrait',
@@ -91,7 +88,7 @@ if os.path.exists(input_path) \
     if args.output is None:
         output_path, output_file = os.path.split(input_path)
         output_file = output_file.split('.')
-        plt.savefig(os.path.join(output_path, output_file[0] + '.out.jpg'))
+        plt.savefig(os.path.join(output_path, output_file[0] + '_out.jpg'))
     else:
         output_dir, _ = os.path.split(output_path)
         if output_dir != '' and not os.path.exists(output_dir):
