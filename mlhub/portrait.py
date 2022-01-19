@@ -1,4 +1,4 @@
-import argparse
+import click
 import os
 import warnings
 import filetype
@@ -16,91 +16,73 @@ model_path = os.environ.get(
     os.path.expanduser(os.path.join(get_package_dir(), "model")),
 )
 
-ap = argparse.ArgumentParser()
 
-ap.add_argument(
-    "input",
-    nargs="?",
-    type=str,
-    help="Path to the input image.",
-)
-
-ap.add_argument(
-    "-o",
-    "--output",
-    nargs="?",
-    type=str,
-    help="Path to the output png image.",
-)
-
-ap.add_argument(
-    '-c',
-    '--composite',
-    action='store_true',
-    help="Display both original and result picture"
-)
-
-ap.add_argument(
-    "-cs",
-    "--composite-sigma",
-    default=2,
-    type=float,
-    help="Sigma value used for Gaussian filters when compositing.",
-)
-
-ap.add_argument(
-    "-ca",
-    "--composite-alpha",
-    default=0.5,
-    type=float,
-    help="Alpha value used for Gaussian filters when compositing.",
-)
-
-args = ap.parse_args()
-
-if args.input is None:
-    raise FileNotFoundError("Please specify a valid image file as input")
-
-if os.path.isabs(args.input):
-    input_path = args.input
-else:
-    input_path = os.path.join(get_cmd_cwd(), args.input)
-
-if args.output is not None:
-    if os.path.isabs(args.output):
-        output_path = args.output
+@click.command()
+@click.argument("input", type=click.Path(exists=True))
+@click.option('--output',
+              '-o',
+              type=str,
+              default=None,
+              help='Path to the output file')
+@click.option('--composite',
+              '-c',
+              default=True,
+              help='Generate the composition of portrait and original photo')
+@click.option('--composite-sigma',
+              '-cs',
+              type=float,
+              default=2,
+              help='Sigma value used for Gaussian filters when compositing.')
+@click.option('--composite-alpha',
+              '-ca',
+              type=float,
+              default=0.5,
+              help='Alpha value used for Gaussian filters when compositing.')
+def portrait(input, output, composite, composite_sigma, composite_alpha):
+    if os.path.isabs(input):
+        input_path = input
     else:
-        output_path = os.path.join(get_cmd_cwd(), args.output)
+        input_path = os.path.join(get_cmd_cwd(), input)
 
-if os.path.exists(input_path) \
-    and filetype.guess(input_path).mime.find('image') >= 0:
-    f = Image.open(input_path).convert("RGB")
-    result = portrait(
-        f,
-        model_name='u2net_portrait',
-        composite=args.composite,
-        sigma=args.composite_sigma,
-        alpha=args.composite_alpha
-    )
-    plt.axis('off')
-    plt.imshow(result)
+    if output is not None:
+        if os.path.isabs(output):
+            output_path = output
+        else:
+            output_path = os.path.join(get_cmd_cwd(), output)
 
-    if args.output is None:
-        output_path, output_file = os.path.split(input_path)
-        output_file = output_file.split('.')
-        plt.savefig(os.path.join(output_path, output_file[0] + '_out.jpg'))
+    if os.path.exists(input_path) \
+        and filetype.guess(input_path).mime.find('image') >= 0:
+        f = Image.open(input_path).convert("RGB")
+        result = portrait(
+            f,
+            model_name='u2net_portrait',
+            composite=composite,
+            sigma=composite_sigma,
+            alpha=composite_alpha
+        )
+        plt.axis('off')
+        plt.imshow(result)
+
+        if output is None:
+            output_path, output_file = os.path.split(input_path)
+            output_file = output_file.split('.')
+            plt.savefig(os.path.join(output_path, output_file[0] + '_out.jpg'))
+        else:
+            output_dir, _ = os.path.split(output_path)
+            if output_dir != '' and not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            plt.savefig(output_path)
+
+    elif os.path.exists(input_path) \
+        and filetype.guess(input_path).mime.find('video') >= 0:
+        if not os.path.exists(os.path.split(output_path)[0]):
+            raise FileNotFoundError("You have to specific a valid output path for a video input")
+        else:
+            flag = video_portrait(input_path, output_path)
+
     else:
-        output_dir, _ = os.path.split(output_path)
-        if output_dir != '' and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        plt.savefig(output_path)
+        raise FileNotFoundError("The input " + input_path + " is not a valid path to a image file")
 
-elif os.path.exists(input_path) \
-    and filetype.guess(input_path).mime.find('video') >= 0:
-    if not os.path.exists(os.path.split(output_path)[0]):
-        raise FileNotFoundError("You have to specific a valid output path for a video input")
-    else:
-        flag = video_portrait(input_path, output_path)
 
-else:
-    raise FileNotFoundError("The input " + input_path + " is not a valid path to a image file")
+if __name__ == '__main__':
+    portrait()
