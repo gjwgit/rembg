@@ -2,7 +2,7 @@ import click
 import os
 import warnings
 import filetype
-from src.rembg.bg import portrait, video_portrait
+from src.rembg.bg import portrait as p, video_portrait as vp
 from PIL import Image, ImageFile
 import matplotlib.pyplot as plt
 from mlhub.utils import get_package_dir
@@ -18,7 +18,7 @@ model_path = os.environ.get(
 
 
 @click.command()
-@click.argument("input", type=click.Path(exists=True))
+@click.argument("input", type=click.Path())
 @click.option('--output',
               '-o',
               type=str,
@@ -53,7 +53,7 @@ def portrait(input, output, composite, composite_sigma, composite_alpha):
     if os.path.exists(input_path) \
         and filetype.guess(input_path).mime.find('image') >= 0:
         f = Image.open(input_path).convert("RGB")
-        result = portrait(
+        result = p(
             f,
             model_name='u2net_portrait',
             composite=composite,
@@ -66,7 +66,7 @@ def portrait(input, output, composite, composite_sigma, composite_alpha):
         if output is None:
             output_path, output_file = os.path.split(input_path)
             output_file = output_file.split('.')
-            plt.savefig(os.path.join(output_path, output_file[0] + '_out.jpg'))
+            plt.savefig(os.path.join(output_path, output_file[0] + '_portrait.jpg'))
         else:
             output_dir, _ = os.path.split(output_path)
             if output_dir != '' and not os.path.exists(output_dir):
@@ -78,7 +78,7 @@ def portrait(input, output, composite, composite_sigma, composite_alpha):
         if not os.path.exists(os.path.split(output_path)[0]):
             raise FileNotFoundError("You have to specific a valid output path for a video input")
         else:
-            flag = video_portrait(input_path, output_path)
+            flag = vp(input_path, output_path)
 
     else:
         raise FileNotFoundError("The input " + input_path + " is not a valid path to a image file")

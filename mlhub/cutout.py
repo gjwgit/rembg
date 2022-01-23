@@ -23,7 +23,7 @@ if len(model_choices) == 0:
 
 
 @click.command()
-@click.argument("input", type=click.Path(exists=True))
+@click.argument("input", type=click.Path())
 @click.option('--output',
               '-o',
               type=str,
