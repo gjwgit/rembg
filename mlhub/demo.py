@@ -38,12 +38,11 @@ mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[0] + "
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[0] + ".jpg"))
 result = remove(f)
 f = Image.open(io.BytesIO(f)).convert("RGBA")
-img = Image.open(io.BytesIO(result)).convert("RGBA")
 fig, plot = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
 plot[0].imshow(f)
 plot[0].set_title('Original Image')
 plot[0].axis('off')
-plot[1].imshow(img)
+plot[1].imshow(result)
 plot[1].set_title('Removal Result')
 plot[1].axis('off')
 fig.suptitle('Removal Example 1 on '+ input_files[0] + ".jpg")
@@ -51,7 +50,7 @@ if save_fig:
     plt.savefig(os.path.join(get_cmd_cwd(), input_files[0]+'.out.png'))
 else:
     plt.show()
-del f, img, result, fig, plot
+del f, result, fig, plot
 print("Background removal on " + input_files[0] + ".jpg has completed.\n")
 
 # Removal Example 2: Performing Regular Keying
@@ -62,12 +61,11 @@ mlask(end="\n", prompt="Press Enter to perform removal on " + input_files[1] + "
 f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[1] + ".jpg"))
 result = remove(f)
 f = Image.open(io.BytesIO(f)).convert("RGBA")
-img = Image.open(io.BytesIO(result)).convert("RGBA")
 fig, plot = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
 plot[0].imshow(f)
 plot[0].set_title('Original Image')
 plot[0].axis('off')
-plot[1].imshow(img)
+plot[1].imshow(result)
 plot[1].set_title('Removal Result')
 plot[1].axis('off')
 fig.suptitle('Removal Example 2 on '+ input_files[1] + ".jpg")
@@ -75,7 +73,7 @@ if save_fig:
     plt.savefig(os.path.join(get_cmd_cwd(), input_files[1]+'.out.png'))
 else:
     plt.show()
-del f, img, result, fig, plot
+del f, result, fig, plot
 print("Background removal on " + input_files[1] + ".jpg has completed.\n")
 
 # Removal Example 3: Performing Alpha-matting Keying
@@ -91,12 +89,11 @@ f = np.fromfile(os.path.join(get_package_dir(), 'examples', input_files[2] + ".j
 # If alpha-matting is not available, naive keying will be used instead
 result = remove(f, alpha_matting=True)
 f = Image.open(io.BytesIO(f)).convert("RGBA")
-img = Image.open(io.BytesIO(result)).convert("RGBA")
 fig, plot = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
 plot[0].imshow(f)
 plot[0].set_title('Original Image')
 plot[0].axis('off')
-plot[1].imshow(img)
+plot[1].imshow(result)
 plot[1].set_title('Alpha Removal Result')
 plot[1].axis('off')
 fig.suptitle('Alpha Matting Removal Example on '+ input_files[2] + ".jpg")
@@ -104,7 +101,7 @@ if save_fig:
     plt.savefig(os.path.join(get_cmd_cwd(), input_files[2]+'.out.png'))
 else:
     plt.show()
-del f, img, result, fig, plot
+del f, result, fig, plot
 print("Alpha matting removal on " + input_files[2] + ".jpg has completed.\n")
 
 if save_fig:
