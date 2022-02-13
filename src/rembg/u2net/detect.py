@@ -55,6 +55,12 @@ def download_file_from_google_drive(id, fname, destination):
 
 
 def load_model(model_name: str = None):
+    '''
+    Load specific models, download them from given links if needed.
+
+    :params model_name: the name of the model. Only u2net, u2netp, u2net_seg and u2net_portrait is supported
+    :return: pretrained u2net model
+    '''
     if model_name is None:
         model_name = 'u2net'
     hasher = Hasher()

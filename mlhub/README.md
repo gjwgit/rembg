@@ -1,13 +1,15 @@
 # rembg
-rembg is a Python library for static image background removal.
-This library based on u2net as backbone network.
+
+## Introduction
+rembg is a Python library for image/video background removal or portrait generation, which is based on u2net as backbone network.
+
 To use this library, extra pretrained model for u2net will be downloaded.
 
 See https://arxiv.org/pdf/2005.09007.pdf for paper or https://github.com/xuebinqin/U-2-Net for detailed model descriptions.
 
 This repo is adapted from the [source library](https://github.com/danielgatis/rembg). Some unused codes and dependencies have been removed
 
-# Usage
+## Usage
 - To install MLHub on Ubuntu
 ```shell
 $ pip3 install mlhub
@@ -25,12 +27,15 @@ $ ml demo rembg
 ```
 Pretrained U-2-Net model will be downloaded on first use
 
-- To perform removal on a custom image
+- To perform removal on a custom image/video
 ```shell
 $ ml cutout rembg PATH_TO_INPUT_FILE [-o PATH_TO_OUTPUT_FILE]
 ```
 Replace PATH_TO_INPUT_FILE and PATH_TO_OUTPUT_FILE with your corresponding path.
-The output path is optional here. If unspecified, the output file will be generated in the input folder.
+
+The output path is optional for image input. If unspecified, the output file will be generated in the input folder.
+
+For a video input file, output path is required.
 
 - To perform removal on a custom image with comparison to its original image
 ```shell
@@ -43,6 +48,16 @@ Replace PATH_TO_INPUT_FILE with your corresponding path
 $ ml cutout rembg PATH_TO_INPUT_FILE -o PATH_TO_OUTPUT_FILE -a True
 ```
 Replace PATH_TO_INPUT_FILE and PATH_TO_OUTPUT_FILE with your corresponding path
+
+- To generate portrait on a given photo
+```shell
+$ ml portrait rembg PATH_TO_INPUT_FILE [-o PATH_TO_OUTPUT_FILE]
+```
+Replace PATH_TO_INPUT_FILE and PATH_TO_OUTPUT_FILE with your corresponding path.
+
+The output path is optional for image input. If unspecified, the output file will be generated in the input folder.
+
+For a video input file, output path is required.
 
 - Full usage of cutout.py
 ```shell
