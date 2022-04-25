@@ -2,7 +2,7 @@
 #
 # Generic Makefile
 #
-# Time-stamp: <Tuesday 2021-11-23 16:59:06 AEDT Graham Williams>
+# Time-stamp: <Tuesday 2022-04-26 08:08:01 +1000 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -15,7 +15,7 @@
 #   Minor update
 #   Trivial update or bug fix
 
-APP=myapp
+APP=rembg
 VER=0.0.1
 DATE=$(shell date +%Y-%m-%d)
 
